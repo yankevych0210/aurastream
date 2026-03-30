@@ -4,24 +4,37 @@ import { MovieRowSkeleton } from "@/components/shared/Skeletons";
 import { getTrending } from "@/lib/api/tmdbService";
 import { Metadata } from "next";
 
+// Always fetch fresh data at request time — never statically prerender
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "New & Popular — AuraStream",
   description: "Discover what's new and popular today on AuraStream.",
 };
 
 async function TrendingAllRow() {
-  // Use 'all' type for mixed trending content
-  const data = await getTrending("movie"); // TMDB trending movie
-  const tvData = await getTrending("tv"); // TMDB trending tv
-  
-  return (
-    <>
-      <MovieRow title="New Movies" items={data.results} />
-      <div className="mt-8">
-        <MovieRow title="Popular TV Series" items={tvData.results} />
+  try {
+    const [data, tvData] = await Promise.all([
+      getTrending("movie"),
+      getTrending("tv"),
+    ]);
+
+    return (
+      <>
+        <MovieRow title="New Movies" items={data.results} />
+        <div className="mt-8">
+          <MovieRow title="Popular TV Series" items={tvData.results} />
+        </div>
+      </>
+    );
+  } catch (error) {
+    console.error("Failed to fetch trending content:", error);
+    return (
+      <div className="text-text-muted text-center py-12">
+        <p>Unable to load trending content right now. Please try again later.</p>
       </div>
-    </>
-  );
+    );
+  }
 }
 
 export default function NewAndPopularPage() {

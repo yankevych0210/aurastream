@@ -27,7 +27,7 @@ export async function GET() {
     if (!url || !key) throw new Error("Supabase env vars not set");
 
     const supabase = createClient(url, key);
-    const { error } = await supabase.from("profiles").select("id").limit(1);
+    const { error } = await supabase.from("users").select("id").limit(1);
     if (error && error.code !== "PGRST116") throw new Error(error.message);
     results.supabase = { ok: true, message: "✅ Connected" };
   } catch (e: unknown) {
